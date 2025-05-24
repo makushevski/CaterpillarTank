@@ -1,34 +1,29 @@
 ﻿#include <Arduino.h>
-#include <IRremote.h>
 
-int RECV_PIN = 3;
-IRrecv irrecv(RECV_PIN);
-decode_results results;
+int ML_Ctrl = 4;
+int ML_PWM = 6;
+int MR_Ctrl = 2;
+int MR_PWM = 5;
 
-bool flag = 0;
-int LED_PIN = 9;
+void move(const uint8_t valLeft, const int speedLeft, const uint8_t valRight, const int speedRight) {
+    digitalWrite(ML_Ctrl, valLeft);
+    analogWrite(ML_PWM, speedLeft);
+    digitalWrite(MR_Ctrl, valRight);
+    analogWrite(MR_PWM, speedRight);
+    delay(2000);
+}
 
 void setup() {
-    Serial.begin(9600);
-    pinMode(LED_PIN, INPUT);
-    irrecv.enableIRIn();
+    pinMode(ML_Ctrl, OUTPUT);
+    pinMode(ML_PWM, OUTPUT);
+    pinMode(MR_Ctrl, OUTPUT);
+    pinMode(MR_PWM, OUTPUT);
 }
 
 void loop() {
-    if (irrecv.decode(&results)) {
-        if (results.value == 0xFF02FD & flag == 0) {
-            digitalWrite(LED_PIN, HIGH);
-            flag = 1;
-        }
-        else if (results.value == 0xFF02FD & flag == 1) {
-            digitalWrite(LED_PIN, LOW);
-            flag = 0;
-        }
-
-        Serial.println(results.value, HEX);
-        Serial.println("flag = " + String(flag));
-        irrecv.resume();
-    }
-
-    delay(100);
+    move(HIGH, 55, HIGH, 55);
+    move(LOW, 200, LOW, 200);
+    move(LOW, 200, HIGH, 55);
+    move(HIGH, 55, LOW, 200);
+    move(LOW, 0, LOW, 0);
 }
